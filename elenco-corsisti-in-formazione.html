@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Sheetsee Table Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+    <script type='text/javascript' src='./sheetsee.js'></script>
+    <link rel="stylesheet" href="./elenco-corsisti-in-formazione.css">
+  </head>
+  
+
+  <body>
+    <div class="container">
+      <h1>Cerca gli iscritti</h1>
+      <input id="fullTableFilter" type="text" placeholder="Filtra campo"></input>
+      <a href="#" class="clear">Pulisci filtro</a>
+      <div id="fullTable"></div>
+    </div>
+
+    <script id="fullTable_template" type="text/html">
+        <table>
+            <thead>
+                <tr>
+                    <th class="tHeader">Cognome</th>
+                    <th class="tHeader">Nome</th>
+                    <th class="tHeader">Regione</th>
+                    <th class="tHeader">Provincia</th>
+                    <th class="tHeader">Città</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#rows}}
+                <tr>
+                    <td>{{COGNOME}}</td>
+                    <td>{{NOME}}</td>
+                    <td>{{REGIONE}}</td>
+                    <td>{{PROVINCIA}}</td>
+                    <td>{{CITTA'}}</td>
+                </tr>
+                {{/rows}}
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableData = getInfo();
+            showInfo(tableData);
+        })
+
+        function getInfo() {
+            //https://spreadsheets.google.com/feeds/cells/10vr-bMOH_16Jk6yPyqB7WJTLF3EfKhXh1njP46M9AAc/1/public/full?alt=json
+            //const spreadsheetKey = "10vr-bMOH_16Jk6yPyqB7WJTLF3EfKhXh1njP46M9AAc";
+            const spreadsheetKey = "17tabI9YGZjJKFj8xDzCo94wR0Z3-5yHc4ujFoOhwHfs";
+            const spreadsheetToJsonURL = "https://spreadsheet.glitch.me/?key="+spreadsheetKey;
+            var data = GetJson(spreadsheetToJsonURL);
+            var data = data.slice(1, data.length);
+            data.forEach(subscriber => {
+                delete Object.assign(subscriber, {REGIONE: subscriber["REGIONE "] })["REGIONE "];
+            });
+            return data;
+        }
+
+        function showInfo(tableData) {
+        var tableOptions = {
+            "data": tableData,
+            "pagination": 15,
+            "tableDiv": "#fullTable",
+            "filterDiv": "#fullTableFilter"
+        };
+        Sheetsee.makeTable(tableOptions);
+        Sheetsee.initiateTableFilter(tableOptions);
+        }
+    
+        function Get(url) {
+            const Httpreq = new XMLHttpRequest(); // a new request
+            Httpreq.open("GET",url,false);
+            Httpreq.send(null);
+            return Httpreq.responseText;          
+        }
+        
+        function GetJson(url) {
+            const resp = Get(url);
+            return JSON.parse(resp);
+        }
+    </script>
+  </body>
+</html>
